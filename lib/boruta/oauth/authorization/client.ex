@@ -11,6 +11,7 @@ defmodule Boruta.Oauth.Authorization.Client do
     def token_config, do: %{}
   end
 
+  require Logger
   alias Boruta.ClientsAdapter
   alias Boruta.Oauth.Client
   alias Boruta.Oauth.Error
@@ -96,7 +97,9 @@ defmodule Boruta.Oauth.Authorization.Client do
            error_description: "Client do not support given grant type."
          }}
 
-      _ ->
+      error ->
+        Logger.warning("Boruta: #{inspect(error)}")
+
         {:error,
          %Error{
            status: :unauthorized,
@@ -137,7 +140,9 @@ defmodule Boruta.Oauth.Authorization.Client do
            error_description: "PKCE request invalid."
          }}
 
-      _ ->
+      error ->
+        Logger.warning("Boruta: #{inspect(error)}")
+
         {:error,
          %Error{
            status: :unauthorized,
@@ -301,7 +306,11 @@ defmodule Boruta.Oauth.Authorization.Client do
   defp verify_secret_result(
          %Client{
            token_endpoint_auth_methods: ["private_key_jwt" | methods]
-         } = client, source, _error, _refreshed) do
+         } = client,
+         source,
+         _error,
+         _refreshed
+       ) do
     message = "Given client expects the credentials to be provided with a jwt assertion."
     do_extract_secret(source, %{client | token_endpoint_auth_methods: methods}, message)
   end

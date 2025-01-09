@@ -2,6 +2,7 @@ defmodule Boruta.Oauth.Client do
   @moduledoc """
   OAuth client schema and utilities
   """
+  require Logger
 
   defmodule Token do
     @moduledoc false
@@ -101,6 +102,8 @@ defmodule Boruta.Oauth.Client do
           :ok | {:error, String.t()}
   def check_redirect_uri(%__MODULE__{redirect_uris: client_redirect_uris}, redirect_uri) do
     case Enum.any?(client_redirect_uris, fn client_redirect_uri ->
+           Logger.warning("Boruta: #{client_redirect_uri}")
+
            redirect_uri_regex =
              client_redirect_uri
              |> Regex.escape()
@@ -109,6 +112,12 @@ defmodule Boruta.Oauth.Client do
            redirect_uri_regex =
              "^#{redirect_uri_regex}$"
              |> Regex.compile!()
+
+           Logger.warning("Boruta: regex #{inspect(redirect_uri_regex)}")
+
+           Logger.warning(
+             "Boruta: result #{inspect(Regex.match?(redirect_uri_regex, redirect_uri))}"
+           )
 
            Regex.match?(redirect_uri_regex, redirect_uri)
          end) do
@@ -230,7 +239,9 @@ defmodule Boruta.Oauth.Client do
             Joken.Signer.create(signature_alg, secret)
 
           :asymmetric ->
-            Joken.Signer.create(signature_alg, %{"pem" => private_key}, %{"kid" => id_token_kid || kid_from_private_key(private_key)})
+            Joken.Signer.create(signature_alg, %{"pem" => private_key}, %{
+              "kid" => id_token_kid || kid_from_private_key(private_key)
+            })
         end
 
       case Token.encode_and_sign(payload, signer) do
