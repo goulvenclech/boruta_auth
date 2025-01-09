@@ -83,6 +83,8 @@ defmodule Boruta.Oauth.Authorization.Client do
 
   def authorize(id: id, source: source, redirect_uri: redirect_uri, grant_type: grant_type)
       when not is_nil(id) and not is_nil(redirect_uri) do
+    Logger.warning("Boruta: authorize #{inspect(id)} #{inspect(redirect_uri)}")
+
     with %Client{} = client <- ClientsAdapter.get_client(id),
          :ok <- Client.check_redirect_uri(client, redirect_uri),
          true <- Client.grant_type_supported?(client, grant_type),

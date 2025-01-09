@@ -103,6 +103,7 @@ defmodule Boruta.Oauth.Client do
   def check_redirect_uri(%__MODULE__{redirect_uris: client_redirect_uris}, redirect_uri) do
     case Enum.any?(client_redirect_uris, fn client_redirect_uri ->
            Logger.warning("Boruta: #{client_redirect_uri}")
+           Logger.warning("Boruta: for #{redirect_uri}")
 
            redirect_uri_regex =
              client_redirect_uri
