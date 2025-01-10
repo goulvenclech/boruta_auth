@@ -83,7 +83,9 @@ defmodule Boruta.Oauth.Authorization.Client do
 
   def authorize(id: id, source: source, redirect_uri: redirect_uri, grant_type: grant_type)
       when not is_nil(id) and not is_nil(redirect_uri) do
-    Logger.warning("Boruta: authorize #{inspect(id)} #{inspect(redirect_uri)}")
+    Logger.warning(
+      "Boruta: authorize 1 #{inspect(id)} -> #{inspect(source)}, #{inspect(redirect_uri)},  #{inspect(grant_type)}, no code verifier}."
+    )
 
     with %Client{} = client <- ClientsAdapter.get_client(id),
          :ok <- Client.check_redirect_uri(client, redirect_uri),
@@ -119,6 +121,10 @@ defmodule Boruta.Oauth.Authorization.Client do
         code_verifier: code_verifier
       )
       when not is_nil(id) and not is_nil(redirect_uri) do
+    Logger.warning(
+      "Boruta: authorize 2 #{inspect(id)} -> #{inspect(source)}, #{inspect(redirect_uri)},  #{inspect(grant_type)}, #{inspect(code_verifier)}."
+    )
+
     with %Client{} = client <- ClientsAdapter.get_client(id),
          :ok <- Client.check_redirect_uri(client, redirect_uri),
          :ok <- validate_pkce(client, code_verifier),
